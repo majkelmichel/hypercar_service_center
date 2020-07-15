@@ -23,6 +23,24 @@ def check_time(queue, type_of_service):
     return time
 
 
+def count_services_in_queue(queue):
+    oil = 0
+    tires = 0
+    diagnostic = 0
+    for service in queue:
+        if service == 'change_oil':
+            oil += 1
+        elif service == 'inflate_tires':
+            tires += 1
+        elif service == 'diagnostic':
+            diagnostic += 1
+    return {
+        'oil': oil,
+        'tires': tires,
+        'diagnostic': diagnostic,
+    }
+
+
 class WelcomeView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'tickets/welcome.html')
@@ -41,4 +59,12 @@ class TicketView(TemplateView):
         context['number'] = len(QUEUE) + 1
         context['wait_time'] = check_time(QUEUE, kwargs['service'])
         QUEUE.append(kwargs['service'])
+        return context
+
+
+class ProcessingView(TemplateView):
+    template_name = 'tickets/processing.html'
+
+    def get_context_data(self, **kwargs):
+        context = count_services_in_queue(QUEUE)
         return context

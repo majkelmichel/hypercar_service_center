@@ -2,9 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$Title$</title>
+    <title>Title</title>
 </head>
 <body>
-$END$
+    <div>Change oil queue: {{ oil }}</div>
+    <div>Inflate tires queue: {{ tires }}</div>
+    <div>Get diagnostic queue: {{ diagnostic }}</div>
+
+    <form method="post">{% csrf_token %}
+      <button type="submit">Process next</button>
+    </form>
 </body>
 </html>
