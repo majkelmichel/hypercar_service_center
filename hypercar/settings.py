@@ -121,4 +121,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-QUEUE = deque()
+OIL_QUEUE = deque()
+TIRE_QUEUE = deque()
+DIAGNO_QUEUE = deque()

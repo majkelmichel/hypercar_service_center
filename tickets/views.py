@@ -2,7 +2,7 @@ from django.views import View
 from django.http.response import HttpResponse
 from django.views.generic.base import TemplateView
 from django.shortcuts import render
-from hypercar.settings import QUEUE
+from hypercar.settings import OIL_QUEUE, TIRE_QUEUE, DIAGNO_QUEUE
 
 menu = {
     'change_oil' : 'Change oil',
@@ -23,24 +23,6 @@ def check_time(queue, type_of_service):
     return time
 
 
-def count_services_in_queue(queue):
-    oil = 0
-    tires = 0
-    diagnostic = 0
-    for service in queue:
-        if service == 'change_oil':
-            oil += 1
-        elif service == 'inflate_tires':
-            tires += 1
-        elif service == 'diagnostic':
-            diagnostic += 1
-    return {
-        'oil': oil,
-        'tires': tires,
-        'diagnostic': diagnostic,
-    }
-
-
 class WelcomeView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'tickets/welcome.html')
@@ -56,9 +38,14 @@ class TicketView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['number'] = len(QUEUE) + 1
-        context['wait_time'] = check_time(QUEUE, kwargs['service'])
-        QUEUE.append(kwargs['service'])
+        context['number'] = len(OIL_QUEUE) + len(TIRE_QUEUE) + len(DIAGNO_QUEUE) + 1
+        context['wait_time'] = check_time(OIL_QUEUE + TIRE_QUEUE + DIAGNO_QUEUE, kwargs['service'])
+        if kwargs['service'] == 'change_oil':
+            OIL_QUEUE.append(kwargs['service'])
+        elif kwargs['service'] == 'inflate_tires':
+            TIRE_QUEUE.append(kwargs['service'])
+        elif kwargs['service'] == 'diagnostic':
+            DIAGNO_QUEUE.append(kwargs['service'])
         return context
 
 
@@ -66,5 +53,9 @@ class ProcessingView(TemplateView):
     template_name = 'tickets/processing.html'
 
     def get_context_data(self, **kwargs):
-        context = count_services_in_queue(QUEUE)
+        context = {
+                'oil': len(OIL_QUEUE),
+                'tires': len(TIRE_QUEUE),
+                'diagnostic': len(DIAGNO_QUEUE),
+        }
         return context
